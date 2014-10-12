@@ -11,8 +11,12 @@ class PageProvider(object):
 
     @cherrypy.expose
     def login(self):
-        return "Login page, WIP"
+        return open("html/login.html")
 
     @cherrypy.expose
     def createaccount(self):
         return "Account creation, WIP"
+
+    @cherrypy.expose
+    def checklogin(self, uname, password):
+        return "Account credential checking WIP, uname: %s, pass %s" %(uname, password)

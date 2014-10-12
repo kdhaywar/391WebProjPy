@@ -8,11 +8,6 @@ import config
 
 if __name__ == "__main__":
     cherrypy.config.update({"server.socket_host": config.IP,
-                            "server.socket_port": config.PORT,
-                            "/favicon.ico":
-                                {
-                                    "tools.staticfile.on": True,
-                                    "tools.staticfilename": "imgurfavicon.ico"
-                                }
+                            "server.socket_port": config.PORT
                             })
     cherrypy.quickstart(PageProvider(), "/")
