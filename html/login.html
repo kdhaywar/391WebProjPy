@@ -2,19 +2,22 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
+   <link type="text/css" rel="stylesheet" href="login.css" />
     <title>Webpage Title!</title>
 </head>
 <body>
-    <form method="get" action="checklogin">
-        <p>
-            Username:<input type="text" name="uname"/>
-        </p>
-        <p>
-            Password:<input type="password" name="password"/>
-        </p>
-        <p>
+    <form method="post" action="checklogin">
+        <div>
+            <label for="uname">Username:</label>
+            <input type="text" name="uname" id="uname"/>
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password"/>
+        </div>
+        <div>
             <button type="submit">Submit</button>
-        </p>
+        </div>
     </form>
 
 </body>
