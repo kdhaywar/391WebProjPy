@@ -13,7 +13,8 @@ if __name__ == "__main__":
                             })
     conf = {
         "/": {
-            "tools.sessions.on": True,
+            "tools.sessions.on": True, #Allow sessions.
+            "tools.sessions.timeout": 60, #Sessions will timeout after 60 minutes.
             "tools.staticdir.root": os.path.abspath(os.getcwd()),
             "tools.staticdir.on": True,
             "tools.staticdir.dir": "html"
