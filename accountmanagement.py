@@ -15,13 +15,9 @@ class AccountManagement(object):
 
         x = AccountDbManagement()
         if x.CheckLogin(uname, password):
-            return(true)
-
-        #if CheckLogin(self, uname, password):
-         #   return(true)
-
+            return True 
         
-        return(0)
+        return False
 
 
 
@@ -39,20 +35,23 @@ class AccountManagement(object):
 
         ###todo###
         ## check user input contraints
-
-        if CheckIfUsernameExists(uname):
+        ##check if password is null
+        x = AccountDbManagement()
+        if x.CheckIfUsernameExists(uname):
         ###username already exists
-            return(false)
+            return False
  
 
-        elif CheckIfEmailExists(email):
+        elif x.CheckIfEmailExists(email):
         ##email already exists
-            return(false)
+            return False
     
     
-        elif password != passconf:
+        elif password != passconf or password == True:
             ##password and passconf do not match
-            return(false)
+            return False
     
         else:
-            CreateUserAccount(fname, lname, address, email, phonenum, uname, password)
+            x.CreateUserAccount(fname, lname, address, email, phonenum, uname, password)
+            
+        return True

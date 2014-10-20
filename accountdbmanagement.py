@@ -6,6 +6,8 @@ __author__ = 'KyleHayward'
 import cherrypy
 import cx_Oracle
 import hashlib, uuid
+import datetime
+import time
 
 
 
@@ -27,15 +29,19 @@ class AccountDbManagement:
         #               cur.prepare('select * from departments where department_id = :id')
         #               cur.execute(None, {'id': 210})
         #               res = cur.fetchall()
-        sql = "select count(*) FROM users WHERE user_names == (%s)" %(uname)
-        if cur.exeute(sql) == 1:
+        sql = "select count(*) FROM users WHERE user_name = '%s'" %(uname)
+
+        cur.execute(sql)    
+        numberOfMatchingUname = cur.fetchall()
+        if numberOfMatchingUname == [(0,)]:
+
             cur.close()
             connection.close()
-            return true
+            return False
 
         cur.close()
         connection.close()
-        return false
+        return True
 
 
 
@@ -46,15 +52,17 @@ class AccountDbManagement:
         #               cur.prepare('select * from departments where department_id = :id')
         #               cur.execute(None, {'id': 210})
         #               res = cur.fetchall()        
-        sql = "select count(*) FROM persons WHERE email == (%s)" %(email)
-        if cur.exeute(sql) == 1:
+        sql = "select count(*) FROM persons WHERE email = '%s'" %(email)
+        cur.execute(sql)    
+        numberOfMatchingEmail = cur.fetchall()        
+        if numberOfMatchingEmail == [(0,)]:
             cur.close()
             connection.close()
-            return(true)
+            return False
 
         cur.close()
         connection.close()
-        return false
+        return True
 
 
 
@@ -68,16 +76,19 @@ class AccountDbManagement:
     def CreateUserAccount(self, fname, lname, address, email, phonenum, uname, password):
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
-        current_date = sys.date()
-        hashed_password = hashlib.sha512(password +uname).hexdigest()
-        usersAccountSql = "insert into users(user_name, password, date_registered) values (%s %s %s)" %(uname, hashed_password, current_date)
-        personsAccountSql ="insert into persons(user_name, first_name, last_name, address, email, phone) values (%s %s %s %s %s %s)" %(uname, fname, lname, address, email, phone)
+        current_date =[]
+        current_date = time.strftime('%m-%d-%Y')
+        
+        #hashed_password = hashlib.sha512(password +uname).hexdigest()
+        
+        usersAccountSql = "insert into users values ('%s', '%s', to_date('%s','MM-DD-YYYY'))" %(uname, password, current_date)
+        personsAccountSql ="insert into persons values ('%s', '%s', '%s', '%s', '%s', '%s')" %(uname, fname, lname, address, email, phonenum)
         cur.execute(usersAccountSql)
         cur.execute(personsAccountSql)
-        ## may need this connection.commit()
+        connection.commit()
         cur.close()
         connection.close()
-        return(true)
+        return True
 
 
 
@@ -91,7 +102,9 @@ class AccountDbManagement:
         #sql = "select count(*) from users where user_name == %s and password == %s"  %(uname, hashed_password)
         #comment bellow for hashed pw
         sql = "select count(*) from users where user_name = '%s' and password = '%s'"  %(uname, pword)
-        if cur.execute(sql) == 1:
+        cur.execute(sql)
+        validUnamePword = cur.fetchall()
+        if validUnamePword == [(1,)]:
             cur.close()
             connection.close()
             return True
