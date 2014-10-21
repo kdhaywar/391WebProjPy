@@ -1,12 +1,7 @@
-import os
-
 
 __author__ = 'KyleHayward'
 
-import cherrypy
 import cx_Oracle
-import hashlib, uuid
-import datetime
 import time
 
 
@@ -21,7 +16,13 @@ import time
 
 class AccountDbManagement:
 
+
     def CheckIfUsernameExists(self, uname):
+        """
+        Checks to see if the passed in username exists in the database.
+        :param uname: The username to check for.
+        :return: Boolean value based on whether the username was found or not.
+        """
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
 
@@ -32,20 +33,23 @@ class AccountDbManagement:
         sql = "select count(*) FROM users WHERE user_name = '%s'" %(uname)
 
         cur.execute(sql)    
-        numberOfMatchingUname = cur.fetchall()
-        if numberOfMatchingUname == [(0,)]:
-
+        numUname = cur.fetchall()
+        if numUname == [(0,)]:
             cur.close()
             connection.close()
             return False
-
-        cur.close()
-        connection.close()
-        return True
-
+        else:
+            cur.close()
+            connection.close()
+            return True
 
 
     def CheckIfEmailExists(self, email):
+        """
+        Checks to see if the passed in email address exists in the database.
+        :param email: The email address to be checked against.
+        :return: Boolean value based on whether or not the email is found.
+        """
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
         #for sql injection
@@ -54,26 +58,29 @@ class AccountDbManagement:
         #               res = cur.fetchall()        
         sql = "select count(*) FROM persons WHERE email = '%s'" %(email)
         cur.execute(sql)    
-        numberOfMatchingEmail = cur.fetchall()        
-        if numberOfMatchingEmail == [(0,)]:
+        numEmail = cur.fetchall()
+        if numEmail == [(0,)]:
             cur.close()
             connection.close()
             return False
-
-        cur.close()
-        connection.close()
-        return True
-
-
-
-
-
-
-
-
+        else:
+            cur.close()
+            connection.close()
+            return True
 
 
     def CreateUserAccount(self, fname, lname, address, email, phonenum, uname, password):
+        """
+        Inserts a new user account into our databse.
+        :param fname: The first name of the new account.
+        :param lname: The last name of the new account.
+        :param address: The address of the new account.
+        :param email: The email address of the new account.
+        :param phonenum: The phone number of the new account.
+        :param uname: The username of the new account.
+        :param password: The password of the new account.
+        :return: True in all cases.
+        """
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
         current_date =[]
@@ -91,10 +98,13 @@ class AccountDbManagement:
         return True
 
 
-
-
-
     def CheckLogin(self, uname, pword):
+        """
+        Checks to see if the provided login information exists in the database.
+        :param uname: The username to be checked for.
+        :param pword: The password to be checked for.
+        :return: Boolean depending on whether the provided username and password were found.
+        """
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
         #uncomment for hashed passwords
@@ -108,6 +118,7 @@ class AccountDbManagement:
             cur.close()
             connection.close()
             return True
-        cur.close()
-        connection.close()
-        return False
+        else:
+            cur.close()
+            connection.close()
+            return False
