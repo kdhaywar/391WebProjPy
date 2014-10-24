@@ -16,7 +16,10 @@ class PageProvider(object):
         The main, front page of our website.
         :return: HTML page for this webpage.
         """
-        return open("html/index.html")
+        if "user" in cherrypy.session.keys():
+            raise cherrypy.HTTPRedirect("/home")
+        else:
+            return open("html/index.html")
 
     @cherrypy.expose
     def login(self):
@@ -47,8 +50,8 @@ class PageProvider(object):
         #we'll need to say their username or password was wrong, and redirect them to the login page.
         x = AccountManagement()
         if x.UserLogin(uname, password):
-            #This is temporary, we'll raise an HTTPRedirect exception here to send the user to another page.
-            return "valid username and password, uname: %s, pass %s" %(uname, password)
+            cherrypy.session["user"] = uname;
+            raise cherrypy.HTTPRedirect("/home")
         else:
             return "invalid username or password, uname: %s, pass %s" %(uname, password)
 
@@ -70,15 +73,11 @@ class PageProvider(object):
         """
         x = AccountManagement()
         if x.CreateUserAccount(fname, lname, address, email, phonenum, uname, password, passconf):
-            return """Account creation worked WIP, parameter values:
-                    fname: %s
-                    lname: %s
-                    address: %s
-                    email: %s
-                    phonenum: %s
-                    uname: %s
-                    password: %s
-                    passconf: %s
-                    """ %(fname, lname, address, email, phonenum, uname, password, passconf)
+            cherrypy.session["user"] = uname;
+            raise cherrypy.HTTPRedirect("/home")
         else:
             return "something went wrong maybe pword didnt match or username/email already exists"
+
+    @cherrypy.expose
+    def home(self):
+        return "This is the homepage for the logged in user, WIP."
