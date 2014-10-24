@@ -17,7 +17,7 @@ if __name__ == "__main__":
             "tools.sessions.timeout": 60, #Sessions will timeout after 60 minutes.
             "tools.staticdir.root": os.path.abspath(os.getcwd()),
             "tools.staticdir.on": True,
-            "tools.staticdir.dir": "html"
+            "tools.staticdir.dir": "static"
         }
     }
     cherrypy.quickstart(PageProvider(), "/", conf)

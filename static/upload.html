@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <link type="text/css" rel="stylesheet" href="upload.css" />
+    <title></title>
+</head>
+<body>
+    <form method="post" action="upload_images">
+        <div>
+            <label for="files">Files:</label>
+            <input type="file" name="files" id="files" multiple />
+        </div>
+        <div>
+            <label for="location">Image Location (Optional):</label>
+            <input type="text" name="location" id="location"/>
+        </div>
+        <div>
+            <label for="picDate">Date Taken (Optional):</label>
+            <input type="date" name="picDate" id="picDate"/>
+        </div>
+        <div>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+
+</body>
+</html>

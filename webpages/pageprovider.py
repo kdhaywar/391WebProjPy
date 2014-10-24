@@ -19,7 +19,7 @@ class PageProvider(object):
         if "user" in cherrypy.session.keys():
             raise cherrypy.HTTPRedirect("/home")
         else:
-            return open("html/index.html")
+            return open("static/index.html")
 
     @cherrypy.expose
     def login(self):
@@ -27,7 +27,7 @@ class PageProvider(object):
         The login page of our website, the user provides a username and password.
         :return: HTML page for this webpage.
         """
-        return open("html/login.html")
+        return open("static/login.html")
 
     @cherrypy.expose
     def createaccount(self):
@@ -36,7 +36,7 @@ class PageProvider(object):
         for the creation of their account.
         :return: HTML page for this webpage.
         """
-        return open("html/createaccount.html")
+        return open("static/createaccount.html")
 
     @cherrypy.expose
     def checklogin(self, uname, password):
