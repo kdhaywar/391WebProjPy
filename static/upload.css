@@ -1,6 +1,6 @@
 form{
     margin: 0 auto;
-    width: 700px;
+    width: 800px;
     padding: 1em;
     border: 1px solid #CCC;
     border-radius: 1em;
@@ -33,9 +33,4 @@ input:focus{
 
 button{
     margin-left: .5em;
-}
-
-input.radio{
-    float: left;
-    text-align: left;
 }

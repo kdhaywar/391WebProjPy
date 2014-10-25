@@ -24,11 +24,13 @@
             <input type="text" name="picSubject" id="picSubject"/>
         </div>
         <div>
-            Security Setting:<br>
-            <input type="radio" name="picSecurity" id="picSecurity" value="Public">Public<br>
-            <input type="radio" name="picSecurity" value="Group">Group
-            <input type="text" name="picGroup" value="Group Name"><br>
-            <input type="radio" name="picSecurity" value="Private" checked>Private
+            <fieldset>
+                <legend> Security Setting:</legend>
+                <label><input type="radio" name="picSecurity" id="rd1" value="Public">Public</label>
+                <label><input type="radio" name="picSecurity" id="rd2" value="Group">Group</label>
+                <label><input type="radio" name="picSecurity" id="rd3" value="Private" checked>Private</label><br>
+                <label><input type="text" name="picGroup" id="picGroup"/>Group Name (If Selected):</label>
+            </fieldset>
         </div>
         <div>
             <button type="submit">Submit</button>
