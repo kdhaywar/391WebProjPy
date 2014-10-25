@@ -6,21 +6,33 @@
     <title></title>
 </head>
 <body>
-    <form method="post" action="upload_images">
+    <form method="post" action="uploadImages">
         <div>
             <label for="files">Files:</label>
-            <input type="file" name="files" id="files" multiple />
+            <input type="file" name="files" id="files" multiple accept="image/*"/>
         </div>
         <div>
             <label for="location">Image Location (Optional):</label>
             <input type="text" name="location" id="location"/>
         </div>
         <div>
-            <label for="picDate">Date Taken (Optional):</label>
+            <label for="picDate">Date Taken(mm/dd/yyyy) (Optional):</label>
             <input type="date" name="picDate" id="picDate"/>
         </div>
         <div>
+            <label for="picSubject">Image Subject (Optional):</label>
+            <input type="text" name="picSubject" id="picSubject"/>
+        </div>
+        <div>
+            Security Setting:<br>
+            <input type="radio" name="picSecurity" id="picSecurity" value="Public">Public<br>
+            <input type="radio" name="picSecurity" value="Group">Group
+            <input type="text" name="picGroup" value="Group Name"><br>
+            <input type="radio" name="picSecurity" value="Private" checked>Private
+        </div>
+        <div>
             <button type="submit">Submit</button>
+            <button type="reset">Reset</button>
         </div>
     </form>
 

@@ -81,3 +81,24 @@ class PageProvider(object):
     @cherrypy.expose
     def home(self):
         return "This is the homepage for the logged in user, WIP."
+
+    @cherrypy.expose
+    def upload(self):
+        return open("static/upload.html")
+
+
+    @cherrypy.expose
+    def uploadImages(self, **kwargs):
+        """
+        Webpages that serves to upload images for us.
+        kwargs is a dictionary containing a bunch of key-value pairs corresponding to the values the
+        user provided.
+        kwargs["files"] will be a list of file-like objects corresponding to the actual files the user wanted to upload.
+        (Can't guarantee they are images though, might help to look at http://svn.cherrypy.org/trunk/cherrypy/tutorial/tut09_files.py).
+        kwargs["location"] will be text describing the location the image was taken at.
+        kwargs["picDate"] will be a string(?) of format mm/dd/yyyy for the date the image was taken. Need testing on campus.
+        kwargs["picSubject"] will be a string describing the subject of the image.
+        kwargs["picSecurity"] will be a string describing security setting, either Public, Group, or Private.
+        kwargs["picGroup"] will be a string describing the group name if the Group security setting is chosen.
+        """
+        return "WIP"
