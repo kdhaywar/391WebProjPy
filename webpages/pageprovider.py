@@ -80,7 +80,34 @@ class PageProvider(object):
 
     @cherrypy.expose
     def home(self):
-        return "This is the homepage for the logged in user, WIP."
+        #return "This is the homepage for the logged in user, WIP."
+        baseHtml = """<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <link type="text/css" rel="stylesheet" href="home.css"/>
+    <title></title>
+</head>
+<body>
+    <div>
+        <h1>I CAN'T BELIEVE IT'S NOT IMGUR!</h1>
+    </div>
+    <div>
+        <h2>Welcome, %s!</h2>
+    </div>
+    <div>
+        <form method="post" action="upload">
+            <button type="submit">Upload Images</button>
+        </form>
+        <form method="post" action="groupDisplay">
+            <button type="submit">Group Management</button>
+        </form>
+    </div>
+</body>
+</html>"""
+
+        return baseHtml % (cherrypy.session["user"])
+
 
     @cherrypy.expose
     def upload(self):
@@ -102,3 +129,17 @@ class PageProvider(object):
         kwargs["picGroup"] will be a string describing the group name if the Group security setting is chosen.
         """
         return "WIP"
+
+    @cherrypy.expose
+    def search(self):
+        return "Search webpage, WIP"
+
+
+    @cherrypy.expose
+    def groupDisplay(self):
+        return "Group display/creation webpage, WIP"
+
+
+    @cherrypy.expose
+    def adminDataAnalysis(self):
+        return "Admin data analysis webpage, WIP"
