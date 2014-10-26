@@ -1,0 +1,20 @@
+h1{
+    text-align: center;
+}
+
+h2{
+    text-align: center;
+}
+
+form{
+    margin: 0 auto;
+    width: 800px;
+}
+
+.buttonHolder{
+    text-align: center;
+}
+
+.buttonHolder form + form{
+    margin-top: 1em;
+}

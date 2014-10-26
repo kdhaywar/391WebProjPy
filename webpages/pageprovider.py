@@ -95,7 +95,7 @@ class PageProvider(object):
     <div>
         <h2>Welcome, %s!</h2>
     </div>
-    <div>
+    <div class="buttonHolder">
         <form method="post" action="upload">
             <button type="submit">Upload Images</button>
         </form>
