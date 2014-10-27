@@ -3,6 +3,7 @@ __author__ = 'HenryPabst'
 import cherrypy
 
 from webprojDatabase.accountmanagement import AccountManagement
+from webpages.util.ProjImage import ProjImage
 
 
 class PageProvider(object):
@@ -138,6 +139,22 @@ class PageProvider(object):
         kwargs["picSecurity"] will be a string describing security setting, either Public, Group, or Private.
         kwargs["picGroup"] will be a string describing the group name if the Group security setting is chosen.
         """
+        for k, v in kwargs.items():
+            print k, v, type(v)
+        images = list()
+        #Will need to put checks here for proper formatting of date, filename, etc.
+        for item in kwargs["files"]:
+            newImage = ProjImage()
+            newImage.imageFile = item.file.read()
+            newImage.imageLocation = kwargs["location"]
+            newImage.imageDate = kwargs["picDate"]
+            newImage.imageSubject = kwargs["picSubject"]
+            newImage.imagePrivacy = kwargs["picSecurity"]
+            newImage.imageGroup = kwargs["picGroup"]
+            newImage.ownerName = cherrypy.session["user"]
+            images.append(newImage)
+        for k in images:
+            print k
         return "WIP"
 
     @cherrypy.expose
