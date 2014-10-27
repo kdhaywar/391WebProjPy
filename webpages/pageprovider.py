@@ -81,6 +81,8 @@ class PageProvider(object):
     @cherrypy.expose
     def home(self):
         #return "This is the homepage for the logged in user, WIP."
+        if "user" not in cherrypy.session.keys():
+            raise cherrypy.HTTPRedirect("/")
         baseHtml = """<!DOCTYPE html>
 <html>
 <head lang="en">
@@ -101,6 +103,12 @@ class PageProvider(object):
         </form>
         <form method="post" action="groupDisplay">
             <button type="submit">Group Management</button>
+        </form>
+        <form method="post" action="search">
+            <button type="submit">Search Images</button>
+        </form>
+        <form method="post" action="logout">
+            <button type="submit">Logout</button>
         </form>
     </div>
 </body>
@@ -143,3 +151,8 @@ class PageProvider(object):
     @cherrypy.expose
     def adminDataAnalysis(self):
         return "Admin data analysis webpage, WIP"
+
+    @cherrypy.expose
+    def logout(self):
+        cherrypy.session.pop("user", None)
+        raise cherrypy.HTTPRedirect("/")
