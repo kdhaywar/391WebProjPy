@@ -140,19 +140,35 @@ class PageProvider(object):
 
     @cherrypy.expose
     def search(self):
+        """
+        The webpage that allows a user to enter an image search query.
+        :return: HTML for the webpage.
+        """
         return "Search webpage, WIP"
 
 
     @cherrypy.expose
     def groupDisplay(self):
+        """
+        The webpage that displays group management information to the user.
+        :return: HTML for the webpage.
+        """
         return "Group display/creation webpage, WIP"
 
 
     @cherrypy.expose
     def adminDataAnalysis(self):
+        """
+        The webpage that allows for administrator data analysis.
+        :return:
+        """
         return "Admin data analysis webpage, WIP"
 
     @cherrypy.expose
     def logout(self):
+        """
+        Logs the user out and returns them to the front page of the website.
+        :return: None
+        """
         cherrypy.session.pop("user", None)
         raise cherrypy.HTTPRedirect("/")
