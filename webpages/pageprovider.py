@@ -119,6 +119,8 @@ class PageProvider(object):
 
     @cherrypy.expose
     def upload(self):
+        if "user" not in cherrypy.session.keys():
+            raise cherrypy.HTTPRedirect("/home")
         return open("static/upload.html")
 
 
@@ -144,6 +146,8 @@ class PageProvider(object):
         The webpage that allows a user to enter an image search query.
         :return: HTML for the webpage.
         """
+        if "user" not in cherrypy.session.keys():
+            raise cherrypy.HTTPRedirect("/home")
         return "Search webpage, WIP"
 
 
@@ -153,6 +157,8 @@ class PageProvider(object):
         The webpage that displays group management information to the user.
         :return: HTML for the webpage.
         """
+        if "user" not in cherrypy.session.keys():
+            raise cherrypy.HTTPRedirect("/home")
         return "Group display/creation webpage, WIP"
 
 
@@ -162,6 +168,8 @@ class PageProvider(object):
         The webpage that allows for administrator data analysis.
         :return:
         """
+        if "user" not in cherrypy.session.keys() or cherrypy.session["user"] != "admin":
+            raise cherrypy.HTTPRedirect("/")
         return "Admin data analysis webpage, WIP"
 
     @cherrypy.expose
