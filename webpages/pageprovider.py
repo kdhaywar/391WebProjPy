@@ -1,9 +1,10 @@
+from util import ProjImage
+
 __author__ = 'HenryPabst'
 
 import cherrypy
 
 from webprojDatabase.accountmanagement import AccountManagement
-from webpages.util.ProjImage import ProjImage
 
 
 class PageProvider(object):
