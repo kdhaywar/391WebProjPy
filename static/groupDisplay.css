@@ -1,0 +1,16 @@
+h1{
+    text-align: center;
+}
+
+form{
+    text-align: center;
+}
+
+.groupTable table{
+    border-collapse: collapse;
+    margin: 0px auto;
+}
+
+form + .groupTable{
+    margin-top: 3em;
+}
