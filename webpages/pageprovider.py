@@ -145,7 +145,12 @@ class PageProvider(object):
             print k, v, type(v)
         images = list()
         #Will need to put checks here for proper formatting of date, filename, etc.
-        for item in kwargs["files"]:
+        fileobjects = list()
+        if isinstance(kwargs["files"], list):
+            fileobjects = kwargs["files"]
+        else:
+            fileobjects.append(kwargs["files"])
+        for item in fileobjects:
             newImage = ProjImage()
             newImage.imageFile = item.file.read()
             newImage.imageLocation = kwargs["location"]
