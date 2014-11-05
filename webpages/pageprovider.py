@@ -176,9 +176,29 @@ class PageProvider(object):
         The webpage that displays group management information to the user.
         :return: HTML for the webpage.
         """
+        #TODO: Database side for  getting Group information and then creating HTML to display it to the user.
         if "user" not in cherrypy.session.keys():
             raise cherrypy.HTTPRedirect("/home")
-        return "Group display/creation webpage, WIP"
+        return "Group display webpage, WIP"
+
+    @cherrypy.expose
+    def groupCreation(self):
+        """
+        The webpage that allows the user to create a new group.
+        :return: HTML for the webpage.
+        """
+        if "user" not in cherrypy.session.keys():
+            raise cherrypy.HTTPRedirect("/home")
+        return "Group creation webpage, WIP."
+
+
+    @cherrypy.expose
+    def addNewGroup(self, groupName=None, groupUsers=None):
+        """
+        Method called from the groupCreation webpage when we want to add a new group to the database.
+        :return: A message detailing whether or not the group was correctly created.
+        """
+        return "Group adding method, WIP"
 
 
     @cherrypy.expose
