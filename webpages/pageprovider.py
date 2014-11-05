@@ -5,6 +5,7 @@ __author__ = 'HenryPabst'
 import cherrypy
 
 from webprojDatabase.accountmanagement import AccountManagement
+from util.ProjImage import ProjImage
 
 
 class PageProvider(object):
