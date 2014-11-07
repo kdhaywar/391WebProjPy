@@ -5,6 +5,7 @@ __author__ = 'HenryPabst'
 import cherrypy
 
 from webprojDatabase.accountmanagement import AccountManagement
+from webprojDatabase.imageManagement import ImageManagement
 from util.ProjImage import ProjImage
 
 
@@ -158,10 +159,21 @@ class PageProvider(object):
             newImage.imageSubject = kwargs["picSubject"]
             newImage.imagePrivacy = kwargs["picSecurity"]
             newImage.imageGroup = kwargs["picGroup"]
-            newImage.ownerName = cherrypy.session["user"]
+            ##newImage.ownerName = cherrypy.session["user"]
             images.append(newImage)
+            
+
         for k in images:
             print k
+
+            x = ImageManagement()
+            ##add better error checking and maybe move for loop to function?
+            if x.ImportImage(k):
+                return "maybe worked???"             
+
+            else:
+                return "didnt work???maybe"             
+            
         return "WIP"
 
     @cherrypy.expose

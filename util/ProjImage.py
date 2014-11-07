@@ -11,7 +11,7 @@ class ProjImage(object):
         self.imageLocation = imageLocation #String describing the image's location.
         self.imageDate = imageDate #String of format mm/dd/yyyy to describe the image's date.
         self.imageSubject = imageSubject #String describing the format of the image.
-        self.imagePrivacy = imagePrivacy #Int code for the privacy setting of the image. 0 for public, 1 for group,
+        self.imagePrivacy = imagePrivacy #Int code for the privacy setting of the image. 1 for public, 0 for group,
                                          #2 for private.
         self.imageGroup = imageGroup #String describing the name of the group the image has security settings for.
         self.imageDesc = imageDesc #String giving the description of the image.

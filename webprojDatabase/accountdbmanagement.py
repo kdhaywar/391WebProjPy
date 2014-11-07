@@ -83,12 +83,11 @@ class AccountDbManagement:
         """
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
-        current_date =[]
-        current_date = time.strftime('%m-%d-%Y')
+
         
         #hashed_password = hashlib.sha512(password +uname).hexdigest()
         
-        usersAccountSql = "insert into users values ('%s', '%s', to_date('%s','MM-DD-YYYY'))" %(uname, password, current_date)
+        usersAccountSql = "insert into users values ('%s', '%s', sysdate)" %(uname, password, current_date)
         personsAccountSql ="insert into persons values ('%s', '%s', '%s', '%s', '%s', '%s')" %(uname, fname, lname, address, email, phonenum)
         cur.execute(usersAccountSql)
         cur.execute(personsAccountSql)
