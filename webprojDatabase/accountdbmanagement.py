@@ -6,12 +6,7 @@ import time
 
 
 
-
-##### TODO######
-#prevent sql injections
-#salt passwords maybe?
-### user input contrants
-# handle failed oracle connections
+#TODO handle failed oracle connections
 
 
 class AccountDbManagement:
@@ -25,14 +20,8 @@ class AccountDbManagement:
         """
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
-
-        #for sql injection
-        #               cur.prepare('select * from departments where department_id = :id')
-        #               cur.execute(None, {'id': 210})
-        #               res = cur.fetchall()
-        sql = "select count(*) FROM users WHERE user_name = '%s'" %(uname)
-
-        cur.execute(sql)    
+        query = "select count(*) FROM users WHERE user_name = :uname"
+        cur.execute(query, {'uname':uname})    
         numUname = cur.fetchall()
         if numUname == [(0,)]:
             cur.close()
@@ -51,13 +40,9 @@ class AccountDbManagement:
         :return: Boolean value based on whether or not the email is found.
         """
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
-        cur = connection.cursor()
-        #for sql injection
-        #               cur.prepare('select * from departments where department_id = :id')
-        #               cur.execute(None, {'id': 210})
-        #               res = cur.fetchall()        
-        sql = "select count(*) FROM persons WHERE email = '%s'" %(email)
-        cur.execute(sql)    
+        cur = connection.cursor()       
+        query = "select count(*) FROM persons WHERE email = :email"
+        cur.execute(query, {'email':email})    
         numEmail = cur.fetchall()
         if numEmail == [(0,)]:
             cur.close()
@@ -83,21 +68,18 @@ class AccountDbManagement:
         """
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
-
         
-        #hashed_password = hashlib.sha512(password +uname).hexdigest()
-        
-        usersAccountSql = "insert into users values ('%s', '%s', sysdate)" %(uname, password, current_date)
-        personsAccountSql ="insert into persons values ('%s', '%s', '%s', '%s', '%s', '%s')" %(uname, fname, lname, address, email, phonenum)
-        cur.execute(usersAccountSql)
-        cur.execute(personsAccountSql)
+        usersInsert = "insert into users( user_name, password, date_registered) values (:uname, :password, sysdate)"
+        personsInsert ="insert into persons(user_name, first_name, last_name, address, email, phone) values ( :uname, :fname, :lname, :address, :email, :phonenum)"
+        cur.execute(usersInsert, {'uname':uname, 'password':password})
+        cur.execute(personsInsert, {'uname':uname, 'fname':fname, 'lname':lname, 'address':address, 'email':email, 'phonenum':phonenum})
         connection.commit()
         cur.close()
         connection.close()
         return True
 
 
-    def CheckLogin(self, uname, pword):
+    def CheckLogin(self, uname, password):
         """
         Checks to see if the provided login information exists in the database.
         :param uname: The username to be checked for.
@@ -106,12 +88,9 @@ class AccountDbManagement:
         """
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
-        #uncomment for hashed passwords
-        #hashed_password = hashlib.sha512(password + uname).hexdigest()
-        #sql = "select count(*) from users where user_name == %s and password == %s"  %(uname, hashed_password)
-        #comment bellow for hashed pw
-        sql = "select count(*) from users where user_name = '%s' and password = '%s'"  %(uname, pword)
-        cur.execute(sql)
+        
+        query = "select count(*) from users where user_name = :uname and password = :password"
+        cur.execute(query, {'uname':uname, 'password':password})
         validUnamePword = cur.fetchall()
         if validUnamePword == [(1,)]:
             cur.close()
