@@ -2,6 +2,7 @@
 __author__ = 'KyleHayward'
 
 import cx_Oracle
+from groupManagement import GroupManagement
 
 
 
@@ -34,12 +35,19 @@ class ImageManagement:
         elif images.imagePrivacy == "Public":
             privacyCode = 1
         elif images.imagePrivacy == "Group":
-            privacyCode = 0
+            x = GroupManagement()
+            groupId = x.GroupNameToId(images.imageGroup , images.ownerName)
+            if groupId:
+                privacyCode = groupId
+            else:
+                print "group name+username pair does not exist so privacy was defualted to private"
+                print images.ownerName
+                privacyCode = 2
         else:
-            print "Something has gone terribly awry"
+            print "ERROR: ProjImage privacy code does not follow protocol"
+            privacyCode = 2
         
-        
-        insert ="insert into images( photo_id, owner_name, permitted, subject, place, timing, description, thumbnail, photo) values( photo_id_seq.nextval, :owner_name, :privacyCode, :subject, :place,  sysdate, :description, :thumbnail, :photo)"
+        insert ="insert into images( photo_id, owner_name, permitted, subject, place, timing, description, thumbnail, photo) values( photo_id_seq.nextval, :owner_name, :privacyCode, :subject, :place,  to_date(:timing,'MM-DD-YYYY'), :description, :thumbnail, :photo)"
         cur.execute(insert, {'owner_name':images.ownerName, 'privacyCode':privacyCode, 'subject':images.imageSubject, 'place':images.imageLocation, 'timing':images.imageDate, 'description':images.imageDesc, 'thumbnail':images.thumbnail, 'photo':images.imageFile})
         connection.commit()      
         cur.close()
