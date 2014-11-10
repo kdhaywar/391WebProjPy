@@ -143,10 +143,7 @@ class PageProvider(object):
         kwargs["picGroup"] will be a string describing the group name if the Group security setting is chosen.
         """
         
-        #redirects user if no session key to prevent NULL user images being uploaded
-        if "user" not in cherrypy.session.keys():
-            raise cherrypy.HTTPRedirect("/home")        
-        
+
         for k, v in kwargs.items():
             print k, v, type(v)
         images = list()
@@ -164,23 +161,31 @@ class PageProvider(object):
             newImage.imageSubject = kwargs["picSubject"]
             newImage.imagePrivacy = kwargs["picSecurity"]
             newImage.imageGroup = kwargs["picGroup"]
-            #newImage.ownerName = cherrypy.session.get("user")  should we use this?
-            newImage.ownerName = cherrypy.session["user"]
+            newImage.ownerName = cherrypy.session.get("user")
+            #newImage.ownerName = cherrypy.session["user"] 
             images.append(newImage)
             
 
         for k in images:
             print k
 
-            x = ImageManagement()
-            ##add better error checking and maybe move for loop to function?
-            if x.ImportImage(k):
-                return "maybe worked???"             
 
-            else:
-                return "didnt work?"             
-            
-        return "WIP"
+        x = ImageManagement()
+        pid = x.SearchImages('asdasd' , 'noobpwner')
+        
+        
+
+
+
+        # sends a list of ProjImage to Import Image
+        x = ImageManagement()
+        failedimagelist = x.ImportImage(images)
+        if failedimagelist:
+            for imageerror in failedimagelist:
+                print imageerror
+            return "Not all images uploaded these images failed '%s'" %(failedimagelist)
+        else:    
+            return "All images uploaded"
 
     @cherrypy.expose
     def search(self):

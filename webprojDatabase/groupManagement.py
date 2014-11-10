@@ -79,15 +79,15 @@ class GroupManagement:
         
         
         
-    def GroupMembers(self, gname):
+    def GroupMembers(self, gId):
         """
-        Takes a gname and returns a list of unames belonging to that group
+        Takes a Group_id and returns a list of unames belonging to that group
         """
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
         
-        query ="select friend_id FROM group_lists WHERE user_name = :uname"
-        cur.execute(query, {'uname':uname})
+        query ="select friend_id FROM group_lists WHERE group_id = :gId"
+        cur.execute(query, {'gId':gId})
         results = cur.fetchall()
         
         cur.close()
