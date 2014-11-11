@@ -30,7 +30,11 @@ class GroupManagement:
             cur.execute(insert, {'user_name':uname, 'group_name':gname})
             connection.commit()  
             cur.close()
-            connection.close()         
+            connection.close()
+            
+            #TODO  auto add group creator to group_list for newly created group
+            #x = GroupManagement()
+            #x.UsersGroups(21, ['q'])            
             return True            
 
         except Exception as e:
@@ -40,12 +44,18 @@ class GroupManagement:
             return False        
     
     
-    def AddGroupMembers(self, gid, fids, note):
+    def AddGroupMembers(self, gid, fids, *args):
         """
         adds new member to existing group taking a group_id, list of friend_id and notice
         must have unique and non null group_id and friend_id. notice can be null
         returns true on success and false on member addition failure
         """ 
+        
+        if len(args) == 0:
+            note = None 
+        else:
+            note = args[0]
+            
         for fid in fids:
             connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
             cur = connection.cursor()
@@ -59,6 +69,25 @@ class GroupManagement:
         cur.close()
         connection.close()         
         return True
+    
+    def RemoveGroup( self,uname, gname, ):
+        """
+        TODO ALL
+        takes uname and gname and removes that group
+        remember admin priv
+        """
+        
+        
+    def RemoveGroupMember( self, uname, gname, fid):
+        """
+        TODO ALL
+        takes uname gname and friend_id(aka user to be removed from group) and removes said person
+        remember admin priv
+        """
+        
+        
+    
+    
 
 
     def UsersGroups(self, uname):
@@ -115,4 +144,20 @@ class GroupManagement:
             return result[0][0]
         else:
             return False
+        
+        
+    def UsersPermissions( self, uname):
+        """
+        gets passed a uname and returns a list of groups the user has permissions to
+        """
+        listofgroups = list()
+        connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
+        cur = connection.cursor()
+        query ="select DISTINCT group_id FROM group_lists WHERE friend_id = :uname"
+        cur.execute(query, {'uname':uname})
+        for row in cur:
+            listofgroups.append(row[0])              
+        cur.close()
+        connection.close()   
+        return listofgroups     
         

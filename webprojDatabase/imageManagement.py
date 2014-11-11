@@ -13,6 +13,7 @@ from util.ProjImage import ProjImage
 
 
 
+
 class ImageManagement:
 
 
@@ -23,9 +24,7 @@ class ImageManagement:
         takes a list of projimages and returns a list(image,list of errormessages) for images that failed to insert,
         if no errors then returns an empty list.
         Checks if image is an image,  date formatting is correct, and if the group name is owner exist/owned by owner  
-
         """
-
         failedimages = list()
 
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
@@ -55,6 +54,7 @@ class ImageManagement:
             if not imghdr.what(None, image.imageFile):
                 errormessage.append("Not a recognized image")
             else:
+
                 try:
                     insert ="insert into images( photo_id, owner_name, permitted, subject, place, timing, description, thumbnail, photo) values( photo_id_seq.nextval, :owner_name, :privacyCode, :subject, :place,  to_date(:timing,'MM-DD-YYYY'), :description, :thumbnail, :photo)"
                     cur.execute(insert, {'owner_name':image.ownerName, 'privacyCode':privacyCode, 'subject':image.imageSubject, 'place':image.imageLocation, 'timing':image.imageDate, 'description':image.imageDesc, 'thumbnail':image.thumbnail, 'photo':image.imageFile})
@@ -77,91 +77,155 @@ class ImageManagement:
 
 
 
-    def UsersImages(self, uname):
+    def GetUsersImages(self, uname, **kwargs):
         """
         WIP
-        takes user_name and returns a list of Photo_ids owned by the user
+        takes user_name and returns a list of projimage objects owned by the user
+        TODO add ability to only get certian image fields
+        TODO add admin privledge
         """
 
+        listofimages = list()
+        
+        
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
         pIdList = list()
-        
-        query ="select photo_id FROM images WHERE owner_name = :uname"
+
+        query ="select * FROM images WHERE owner_name = :uname"
         cur.execute(query, {'uname':uname})
         for row in cur:
-            pIdList.append(row[0])       
-
-        cur.close()
-        connection.close()   
-        return pIdList       
-        
-        
-        
-        
-    def GetImages(self, Pid):
-        """
-        WIP
-        takes list of Photo_id and returns a list of projimage Objects
-        """
-        listofimages = list()
-        connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
-        cur = connection.cursor()
-        Pidstring = ','.join(str(i) for i in Pid)
-
-        #TODO BIND VAR
-        query ="select * FROM images WHERE photo_id IN (%s)" %(Pidstring)
-        
-        #this is mixing up the PID so its fucking with the search order
-        cur.execute(query)
-        for image in cur:
             newImage = ProjImage()
-            newImage.imageId = image[0]
-            newImage.ownerName = image[1]
-            newImage.imagePrivacy = image[2]
-            newImage.imageSubject = image[3]
-            newImage.imageLocation = image[4]
-            newImage.imageDate = image[5]
-            newImage.imageDesc = image[6]
-            newImage.thumbnail = image[7]
-            newImage.imageFile = image[8].read()
-            listofimages.append(newImage)
+            newImage.imageId = row[0]
+            newImage.ownerName = row[1]
+            newImage.imagePrivacy = row[2]
+            newImage.imageSubject = row[3]
+            newImage.imageLocation = row[4]
+            newImage.imageDate = row[5]
+            newImage.imageDesc = row[6]
+            newImage.thumbnail = row[7]
+            newImage.imageFile = row[8].read()
+            listofimages.append(newImage)      
         cur.close()
         connection.close()   
-        
-        return listofimages       
-        
+        return listofimages      
         
         
-    def SearchImages( self , searchquery, uname):
+        
+        
+      
+        
+        
+        
+    def SearchImages( self , uname, searchquery):
         """
         takes a string and username and performs a search based on the string  
-        returns list of photo_ids that the specific user is permitted to view
-        WIP
+        returns list of projimage objects
+        TODO add ability to only get certian image fields
+        TODO add admin privledges
         """
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
-        pIdList = list()
+        listofimages = list()
         
-        # 6*frequency(subject) + 3*frequency(place) + frequency(description)
+        #gets a list of group_ids the uname is a momber of and converts it into a string for query condition statement
+        x = GroupManagement()
+        listofgroups = x.UsersPermissions(uname)
+        stringofgroups = ','.join(map(str, listofgroups)) 
+
+        #TODO PARSE INPUT REMOVING COMMAS AND SUCH must not have query operators
+        #tokenizes searchquery and transforms it to various oracle recognized expressions for a better search
         
-        query ="SELECT score(1), score(2), score(3), photo_id FROM images WHERE contains(place, 'internet', 1) + contains(subject, 'dickbutt', 2) + contains(description, 'internet', 3) > 0 order by (score(1)*3)+(score(2)*6)+(score(3)) desc"
-        cur.execute(query)
+        
+        
+        
+        """
+        maybe do this for added sql injection protection
+        object_name = cursor.callfunc('sys.dbms_assert.sql_object_name'
+                                     , cx_Oracle.string, ['usertable'])        
+        """        
+        
+        
+        progrelaxml = """'<query>
+            <textquery lang="ENGLISH" grammar="CONTEXT"> """+ searchquery +"""
+            <progression>
+            <seq><rewrite>transform((TOKENS, "{", "}", " "))</rewrite></seq>
+            <seq><rewrite>transform((TOKENS, "{", "}", " ; "))</rewrite></seq>
+            <seq><rewrite>transform((TOKENS, "{", "}", " AND "))</rewrite></seq>
+            <seq><rewrite>transform((TOKENS, "{", "}", " ACCUM "))</rewrite></seq>
+            </progression>
+            </textquery>
+            <score datatype="INTEGER" algorithm="COUNT"/>
+            </query>'"""
+
+        query ="""SELECT * FROM images WHERE (contains(place, :progrelaxml , 1) + contains(subject,  :progrelaxml , 2) + contains(description, :progrelaxml, 3) > 0)
+            AND (owner_name = :uname OR permitted IN (%s)) order by (score(1)*3)+(score(2)*6)+(score(3)) desc""" %(stringofgroups)
+        
+        cur.execute(query, {'progrelaxml':progrelaxml , 'uname':uname}) 
         for row in cur:
-            pIdList.append(row[3])
-            print row
-            print "asdfasdf"
-        print pIdList
-        x = ImageManagement()
-        failedimagelist = x.GetImages(pIdList)
-        for d in failedimagelist:
-            print d.imageSubject
-            print d.imageLocation
-            print d.imageId
-            print "\n"
+            newImage = ProjImage()
+            newImage.imageId = row[0]
+            newImage.ownerName = row[1]
+            newImage.imagePrivacy = row[2]
+            newImage.imageSubject = row[3]
+            newImage.imageLocation = row[4]
+            newImage.imageDate = row[5]
+            newImage.imageDesc = row[6]
+            newImage.thumbnail = row[7]
+            newImage.imageFile = row[8].read()
+            listofimages.append(newImage) 
+           
         cur.close()
         connection.close()   
-        return pIdList         
+        return listofimages        
         
+        
+        
+        
+        
+        
+    def ModifyImageData( self, pid, **kwargs):
+        """
+        TODO ALL OF IT
+        WIP!!! DO NOT USE
+        takes a pid and a dictionary of fields to be changed and what they are being changed to ( key = actual table cols, value= new data)
+        can not modify pid
+        remember admin priv
+        """
+  
+
+        connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
+        cur = connection.cursor()
+        
+        
+        dictq = {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}
+        
+        strq = str(dictq)
+        
+        
+        ", ".join(["=".join([key, str(val)]) for key, val in data.items()])
+        
+        print d 
+        print strq
+        uname = "q"
+        """
+        query ="UPDATE images SET :dictofsomefuckingsortidk WHERE photo_id = :pid"
+        cur.execute(query, {'uname':uname})
+        for row in cur:
+            newImage = ProjImage()
+            newImage.imageId = row[0]
+            newImage.ownerName = row[1]
+            newImage.imagePrivacy = row[2]
+            newImage.imageSubject = row[3]
+            newImage.imageLocation = row[4]
+            newImage.imageDate = row[5]
+            newImage.imageDesc = row[6]
+            newImage.thumbnail = row[7]
+            newImage.imageFile = row[8].read()
+            listofimages.append(newImage) 
+        """
+        cur.close()
+        connection.close()   
+        return True  
         
         
