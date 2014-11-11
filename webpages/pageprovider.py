@@ -1,5 +1,6 @@
 from util import ProjImage
 
+
 __author__ = 'HenryPabst'
 
 import cherrypy
@@ -143,7 +144,7 @@ class PageProvider(object):
         kwargs["picGroup"] will be a string describing the group name if the Group security setting is chosen.
         """
         
-
+        ##cherrypy.engine.exit()
         for k, v in kwargs.items():
             print k, v, type(v)
         images = list()
@@ -168,13 +169,6 @@ class PageProvider(object):
 
         for k in images:
             print k
-
-
-        x = ImageManagement()
-        pid = x.SearchImages('asdasd' , 'noobpwner')
-        
-        
-
 
 
         # sends a list of ProjImage to Import Image
