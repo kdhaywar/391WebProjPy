@@ -79,7 +79,6 @@ class ImageManagement:
 
     def GetUsersImages(self, uname, **kwargs):
         """
-        WIP
         takes user_name and returns a list of projimage objects owned by the user
         TODO add ability to only get certian image fields
         TODO add admin privledge
