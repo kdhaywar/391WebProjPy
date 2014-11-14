@@ -128,24 +128,13 @@ class ImageManagement:
         cur = connection.cursor()
         listofimages = list()
         
-        #gets a list of group_ids the uname is a momber of and converts it into a string for query condition statement
+        #gets a list of group_ids the uname is a member of and converts it into a string for query condition statement
         x = GroupManagement()
         listofgroups = x.UsersPermissions(uname)
         stringofgroups = ','.join(map(str, listofgroups)) 
 
         #TODO PARSE INPUT REMOVING COMMAS AND SUCH must not have query operators
-        #tokenizes searchquery and transforms it to various oracle recognized expressions for a better search
-        
-        
-        
-        
-        """
-        maybe do this for added sql injection protection
-        object_name = cursor.callfunc('sys.dbms_assert.sql_object_name'
-                                     , cx_Oracle.string, ['usertable'])        
-        """        
-        
-        
+        #tokenizes searchquery and transforms it to various oracle recognized expressions for a better search 
         progrelaxml = """'<query>
             <textquery lang="ENGLISH" grammar="CONTEXT"> """+ searchquery +"""
             <progression>
@@ -159,7 +148,7 @@ class ImageManagement:
             </query>'"""
 
         query ="""SELECT * FROM images WHERE (contains(place, :progrelaxml , 1) + contains(subject,  :progrelaxml , 2) + contains(description, :progrelaxml, 3) > 0)
-            AND (owner_name = :uname OR permitted IN (%s)) order by (score(1)*3)+(score(2)*6)+(score(3)) desc""" %(stringofgroups)
+            AND (owner_name = :uname OR permitted IN (%s) OR :uname = 'admin') order by (score(1)*3)+(score(2)*6)+(score(3)) desc""" %(stringofgroups)
         
         cur.execute(query, {'progrelaxml':progrelaxml , 'uname':uname}) 
         for row in cur:
@@ -184,46 +173,23 @@ class ImageManagement:
         
         
         
-    def ModifyImageData( self, pid, **kwargs):
+    def ModifyImageData( self, uname, pid, **kwargs):
         """
-        TODO ALL OF IT
-        WIP!!! DO NOT USE
-        takes a pid and a dictionary of fields to be changed and what they are being changed to ( key = actual table cols, value= new data)
-        can not modify pid
-        remember admin priv
+        takes a pid and a key word pairs of column names:new data to be changed and what they are being changed to.
+        Note keys must match the columns in the images table
+        example ModifyImageData(uname, photo_id, subject ='new subject' , place = 'new location') 
+        do not modify pid
         """
-  
-
+        
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
-        
-        
-        dictq = {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}
-        
-        strq = str(dictq)
-        
-        
-        ", ".join(["=".join([key, str(val)]) for key, val in data.items()])
-        
-        print d 
-        print strq
-        uname = "q"
-        """
-        query ="UPDATE images SET :dictofsomefuckingsortidk WHERE photo_id = :pid"
-        cur.execute(query, {'uname':uname})
-        for row in cur:
-            newImage = ProjImage()
-            newImage.imageId = row[0]
-            newImage.ownerName = row[1]
-            newImage.imagePrivacy = row[2]
-            newImage.imageSubject = row[3]
-            newImage.imageLocation = row[4]
-            newImage.imageDate = row[5]
-            newImage.imageDesc = row[6]
-            newImage.thumbnail = row[7]
-            newImage.imageFile = row[8].read()
-            listofimages.append(newImage) 
-        """
+        # creates a sql statement using the keys passed.  the nested join statement creates ' key= :key '
+        # while the other join statement combines ' key= :key ' strings so they are seperated by commas
+        insert ="UPDATE images SET "+ ", ".join(["= :".join([key, key]) for key, value in kwargs.items()]) +" WHERE photo_id = :pid AND (owner_name = :uname OR :uname = 'admin')"
+        #adds the pid and uname to the kwargs so sql can properly bind all the nessesary varibles when executed
+        kwargs.update({'pid':pid , 'uname':uname})
+        cur.execute(insert, kwargs ) 
+        connection.commit() 
         cur.close()
         connection.close()   
         return True  

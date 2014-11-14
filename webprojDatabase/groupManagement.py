@@ -28,13 +28,11 @@ class GroupManagement:
         
         try:
             cur.execute(insert, {'user_name':uname, 'group_name':gname})
-            connection.commit()  
+            connection.commit() 
+            x = GroupManagement()
+            if not x.GroupNameToId(uname, gname): raise Exception("user was not added to users new group")              
             cur.close()
             connection.close()
-            
-            #TODO  auto add group creator to group_list for newly created group
-            #x = GroupManagement()
-            #x.UsersGroups(21, ['q'])            
             return True            
 
         except Exception as e:
@@ -70,20 +68,52 @@ class GroupManagement:
         connection.close()         
         return True
     
-    def RemoveGroup( self,uname, gname, ):
+    
+    
+    def RemoveGroup( self,uname, gname):
         """
-        TODO ALL
+        TODO ALL WIP
         takes uname and gname and removes that group
         remember admin priv
         """
+        connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
+        cur = connection.cursor()
+        gid = GroupManagement().GroupNameToId(uname , gname)
+        if not gid and uname is not 'admin':
+            print "%s does not have access to delete group %s" %(uname, gname)
+            return False
+        #deletes all memebers of the group first  
+        for fid in GroupManagement().GroupMembers(GroupManagement().GroupNameToId(uname, gname)):
+            GroupManagement().RemoveGroupMember(uname, gname, fid)
+        #deletes group
+        statement ="DELETE FROM groups WHERE group_id = :gid OR :uname = 'admin'"
+        cur.execute(statement, {'gid':gid, 'uname':uname})
+        connection.commit()
+        cur.close()
+        connection.close()           
+        return True        
+        
         
         
     def RemoveGroupMember( self, uname, gname, fid):
         """
-        TODO ALL
-        takes uname gname and friend_id(aka user to be removed from group) and removes said person
-        remember admin priv
+        takes uname gname and friend_id(aka username to be removed from group) and removes said person
+        returns true if user removal was successful false if not
+        TODO add to take in list of fid?? maybe
         """
+        connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
+        cur = connection.cursor()
+        gid = GroupManagement().GroupNameToId(uname , gname)
+        if not gid and uname is not 'admin':
+            print "%s does not have access to remove members from %s" %(uname, gname)
+            return False
+        
+        statement ="DELETE FROM group_lists WHERE (group_id = :gid OR :uname = 'admin') AND friend_id = :fid"
+        cur.execute(statement, {'gid':gid, 'fid':fid, 'uname':uname})
+        connection.commit()
+        cur.close()
+        connection.close()           
+        return True        
         
         
     
@@ -93,6 +123,7 @@ class GroupManagement:
     def UsersGroups(self, uname):
         """
         Takes a uname and returns a dict of group_id/group_name pairs belonging to that user
+        TODO admin stuff
         """
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
@@ -100,7 +131,6 @@ class GroupManagement:
         query ="select group_id, group_name FROM groups WHERE user_name = :uname"
         cur.execute(query, {'uname':uname})
         results = cur.fetchall()
-        
         cur.close()
         connection.close()   
         
@@ -111,21 +141,21 @@ class GroupManagement:
     def GroupMembers(self, gId):
         """
         Takes a Group_id and returns a list of unames belonging to that group
+        TODO admin stuff
         """
+        results = []
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
-        
         query ="select friend_id FROM group_lists WHERE group_id = :gId"
         cur.execute(query, {'gId':gId})
-        results = cur.fetchall()
-        
+        for row in cur:
+            results.append(row[0])      
         cur.close()
-        connection.close()   
-        
+        connection.close() 
         return results
     
     
-    def GroupNameToId(self, gname, uname):
+    def GroupNameToId(self, uname, gname ):
         """
         Takes a gname and uname and returns the group ID or False if gname + uname do not exist
         """
@@ -149,6 +179,7 @@ class GroupManagement:
     def UsersPermissions( self, uname):
         """
         gets passed a uname and returns a list of groups the user has permissions to
+        TODO admin stuff
         """
         listofgroups = list()
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
