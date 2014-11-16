@@ -305,7 +305,8 @@ class PageProvider(object):
             raise cherrypy.HTTPRedirect("/home")
         print "groupName " + groupName
         print "groupId " + groupId
-        return open("static/groupManagement.html")
+        groupManagementHTML = open("static/groupManagement.html").read() %(groupId)
+        return groupManagementHTML
 
     @cherrypy.expose
     def addNewGroup(self, groupName=None, groupUsers=None):
@@ -330,7 +331,31 @@ class PageProvider(object):
         print "removedUsers", removedUsers
         print "modifiedNotices", modifiedNotices
         print "deleteGroup", deleteGroup
-        return "Group Management WIP"
+        gm = GroupManagement()
+        groupName = gm.GroupIdToName((int(groupId)))
+        if(deleteGroup == "True"):
+            result = gm.RemoveGroup(cherrypy.session.get("user"), groupName)
+            if(result):
+                return "Group was sucessfully removed."
+            else:
+                return "Group could not be removed."
+        removedUsers = removedUsers.split(", ")
+        addedUsers = addedUsers.split(", ")
+        results = list()
+       # for r, a in removedUsers, addedUsers:
+       #     if r == a:
+       #         return "Error, cannot both add and remove a user: %s." %(r)
+        for r in removedUsers:
+            result = gm.RemoveGroupMember(cherrypy.session.get("user"), groupName, r)
+            if not result:
+                results.append("Error: Could not remove user %s." %(r))
+        for a in addedUsers:
+            miscList = list()
+            miscList.append(a)
+            result = gm.AddGroupMembers(groupId, miscList)
+            if not result:
+                results.append("Error: Could not add user %s." %(a))
+        return str(results)
 
     @cherrypy.expose
     def adminDataAnalysis(self):
