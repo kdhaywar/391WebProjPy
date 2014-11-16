@@ -242,10 +242,12 @@ class PageProvider(object):
             </thead>
             <tbody>
         """
-        groupFooter = """
-        </tbody>
+        groupTableEnd = """
+                </tbody>
         </table>
     </div>
+        """
+        groupFooter = """
 </body>
 </html>
         """
@@ -259,23 +261,30 @@ class PageProvider(object):
                             <tr style="border-bottom:1px solid black;">
                     <td style="padding: 5px;">%s</td>
                     <td style="padding: 5px; border-left: 1px solid black;">%s</td>
-                    <form method="post" action="groupManagement">
+                </tr>
+            """ %(groupName, "<br>".join(groupUsers))
+
+            groupTableEnd = groupTableEnd + """
+                                    <form method="post" action="groupManagement">
                         <input type="hidden" name="groupName" id="groupName" value="%s"/>
                         <input type="hidden" name="groupId" id="groupId" value="%d"/>
-                        <button type="submit"> Manage Group </button>
+                        <button type="submit"> Manage Group %s </button>
                     </form>
-                </tr>
-            """ %(groupName, "<br>".join(groupUsers), groupName, key)
+            """ %(groupName, key, groupName)
         guestGroupIds = gm.UsersPermissions(cherrypy.session.get("user"))
+        for id in guestGroupIds:
+            if id in usersGroups.keys():
+                guestGroupIds.remove(id)
         for groupId in guestGroupIds:
             groupUsers = gm.GroupMembers(groupId)
+            groupName = gm.GroupIdToName(groupId)
             groupData = groupData + """
                                         <tr style="border-bottom:1px solid black;">
                     <td style="padding: 5px;">%s</td>
                     <td style="padding: 5px; border-left: 1px solid black;">%s</td>
                     </tr>
-            """ %(str(groupId), "<br>".join(groupUsers))
-        return groupHeader + groupData + groupFooter
+            """ %(groupName, "<br>".join(groupUsers))
+        return groupHeader + groupData + groupTableEnd + groupFooter
 
     @cherrypy.expose
     def groupCreation(self):
@@ -290,6 +299,10 @@ class PageProvider(object):
 
     @cherrypy.expose
     def groupManagement(self, groupName=None, groupId=None):
+        if "user" not in cherrypy.session.keys():
+            raise cherrypy.HTTPRedirect("/home")
+        print "groupName " + groupName
+        print "groupId " + groupId
         return "Group Management WIP"
 
     @cherrypy.expose
