@@ -4,6 +4,8 @@ __author__ = 'KyleHayward'
 import cx_Oracle
 import imghdr
 import re
+from datetime import datetime
+import datetime
 from groupManagement import GroupManagement
 from util.ProjImage import ProjImage
 
@@ -131,6 +133,24 @@ class ImageManagement:
         cur = connection.cursor()
         listofimages = list()
         
+        
+
+
+        
+
+        dates = []
+        patn = re.compile(r'\d{2} \w{3} \d{4}')
+
+
+        for match in patn.findall(searchquery):
+            try:
+                val = datetime.strptime(match, '%d %b %Y')
+                dates.append(val)
+            except ValueError:
+                pass # ignore, this isn't a date
+        print dates        
+                
+        
         #cleans user input to just alphanumeric
         rx = re.compile('\W+')
         cleansearchquery = rx.sub(' ', searchquery).strip()
@@ -157,7 +177,7 @@ class ImageManagement:
             <score datatype="INTEGER" algorithm="COUNT"/>
             </query>'"""
         
-        
+
         ranktype = None
         if orderby is 'rank':
             ranktype = "(score(1)*3)+(score(2)*6)+(score(3)) desc"    
