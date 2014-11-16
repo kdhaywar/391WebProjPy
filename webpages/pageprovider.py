@@ -7,6 +7,7 @@ import cherrypy
 
 from webprojDatabase.accountmanagement import AccountManagement
 from webprojDatabase.imageManagement import ImageManagement
+from webprojDatabase.groupManagement import GroupManagement
 from util.ProjImage import ProjImage
 
 
@@ -201,7 +202,58 @@ class PageProvider(object):
         #TODO: Database side for  getting Group information and then creating HTML to display it to the user.
         if "user" not in cherrypy.session.keys():
             raise cherrypy.HTTPRedirect("/home")
-        return "Group display webpage, WIP"
+        groupHeader = """
+        <!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <link type="text/css" rel="stylesheet" href="groupDisplay.css"/>
+    <title></title>
+</head>
+<body>
+    <div>
+        <h1>
+            I CAN'T BELIEVE IT'S NOT IMGUR!
+        </h1>
+    </div>
+    <div>
+        <form method="post" action="groupCreation">
+            <button type="submit">Create a New Group</button>
+        </form>
+    </div>
+    <div class="groupTable">
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="2">My Groups</th>
+                </tr>
+                <tr style="border-bottom:1px solid black;">
+                    <th style="padding: 5px;"><em>Group Name</em></th>
+                    <th style="padding: 5px; border-left:1px solid black"><em>Group Members</em></th>
+                </tr>
+            </thead>
+            <tbody>
+        """
+        groupFooter = """
+        </tbody>
+        </table>
+    </div>
+</body>
+</html>
+        """
+        groupData = ""
+        gm = GroupManagement()
+        usersGroups = gm.UsersGroups(cherrypy.session.get("user"))
+        for key in usersGroups.keys():
+            groupName = usersGroups.get(key)
+            groupUsers = gm.GroupMembers(key)
+            groupData = groupData + """
+                            <tr style="border-bottom:1px solid black;">
+                    <td style="padding: 5px;">%s</td>
+                    <td style="padding: 5px; border-left: 1px solid black;">%s</td>
+                </tr>
+            """ %(groupName, "<br>".join(groupUsers))
+        return groupHeader + groupData + groupFooter
 
     @cherrypy.expose
     def groupCreation(self):
@@ -211,7 +263,7 @@ class PageProvider(object):
         """
         if "user" not in cherrypy.session.keys():
             raise cherrypy.HTTPRedirect("/home")
-        return "Group creation webpage, WIP."
+        return open("static/groupCreation.html")
 
 
     @cherrypy.expose
@@ -220,8 +272,24 @@ class PageProvider(object):
         Method called from the groupCreation webpage when we want to add a new group to the database.
         :return: A message detailing whether or not the group was correctly created.
         """
-        return "Group adding method, WIP"
+        if(groupName == None or groupUsers == None):
+            return "Error, you must provide a group name and a list of users to add."
+        gm = GroupManagement()
+        usersList = groupUsers.split(", ")
+        usersList.append(cherrypy.session.get("user"))
+        gm.CreateGroup(cherrypy.session.get("user"), groupName)
+        groupId = gm.GroupNameToId(cherrypy.session.get("user"), groupName)
+        gm.AddGroupMembers(groupId, usersList)
+        return "Group adding successful."
 
+    @cherrypy.expose
+    def manageGroup(self, groupId=None, addedUsers=None, removedUsers=None, modifiedNotices=None, deleteGroup=None):
+        print "groupId" + groupId
+        print "addedUsers" + addedUsers
+        print "removedUsers" + removedUsers
+        print "modifiedNotices" + modifiedNotices
+        print "deleteGroup" + deleteGroup
+        return "Group Management WIP"
 
     @cherrypy.expose
     def adminDataAnalysis(self):

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <link typ="text/css" rel="stylesheet" href="groupManagement.css" />
+    <title></title>
+</head>
+<body>
+    <h1>
+        I CAN'T BELIEVE IT'S NOT IMGUR!
+    </h1>
+    <form method="post" action="manageGroup">
+        <div>
+            <label for="removedUsers">Users to Remove:</label>
+            <input type="text" name="removedUsers" id="removedUsers" value="User1, User2, etc."/>
+        </div>
+        <div>
+            <label for="addedUsers">Users to Add:</label>
+            <input type="text" name="addedUsers" id="addedUsers" value="User1, User2, etc."/>
+        </div>
+        <div>
+            <label for="modifiedNotices">Notices to Modify:</label>
+            <input type="text" name="modifiedNotices" id="modifiedNotices" value="Username - New Notice"/>
+        </div>
+        <div>
+            <input type="checkbox" name="deleteGroup" value="True">Delete This Group<br>
+        </div>
+        <div>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+
+</body>
+</html>
