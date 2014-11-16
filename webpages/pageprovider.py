@@ -251,8 +251,22 @@ class PageProvider(object):
                             <tr style="border-bottom:1px solid black;">
                     <td style="padding: 5px;">%s</td>
                     <td style="padding: 5px; border-left: 1px solid black;">%s</td>
+                    <form method="post" action="groupManagement">
+                        <input type="hidden" name="groupName" id="groupName" value="%s"/>
+                        <input type="hidden" name="groupId" id="groupId" value="%d"/>
+                        <button type="submit"> Manage Group </button>
+                    </form>
                 </tr>
-            """ %(groupName, "<br>".join(groupUsers))
+            """ %(groupName, "<br>".join(groupUsers), groupName, key)
+        guestGroupIds = gm.UsersPermissions(cherrypy.session.get("user"))
+        for groupId in guestGroupIds:
+            groupUsers = gm.GroupMembers(groupId)
+            groupData = groupData + """
+                                        <tr style="border-bottom:1px solid black;">
+                    <td style="padding: 5px;">%s</td>
+                    <td style="padding: 5px; border-left: 1px solid black;">%s</td>
+                    </tr>
+            """ %(str(groupId), "<br>".join(groupUsers))
         return groupHeader + groupData + groupFooter
 
     @cherrypy.expose
@@ -265,6 +279,10 @@ class PageProvider(object):
             raise cherrypy.HTTPRedirect("/home")
         return open("static/groupCreation.html")
 
+
+    @cherrypy.expose
+    def groupManagement(self, groupName=None, groupId=None):
+        return "Group Management WIP"
 
     @cherrypy.expose
     def addNewGroup(self, groupName=None, groupUsers=None):
