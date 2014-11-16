@@ -193,7 +193,7 @@ class PageProvider(object):
         :return: HTML for the webpage.
         """
         x = ImageManagement()
-        failedimagelist = x.SearchImages( 'q', 'sdfgsdfg sdfgsdfg 05/04/12 10/09/05', 'rank')
+        failedimagelist = x.SearchImages( 'q', 'sdfgsdfg sdfgsdfg 05/04/1254 10/09/2010', 'rank')
         print failedimagelist
         
         if "user" not in cherrypy.session.keys():
