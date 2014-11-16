@@ -29,8 +29,7 @@ class GroupManagement:
         try:
             cur.execute(insert, {'user_name':uname, 'group_name':gname})
             connection.commit() 
-            x = GroupManagement()
-            if not x.GroupNameToId(uname, gname): raise Exception("user was not added to users new group")              
+            x = GroupManagement()             
             cur.close()
             connection.close()
             return True            
@@ -72,9 +71,7 @@ class GroupManagement:
     
     def RemoveGroup( self,uname, gname):
         """
-        TODO ALL WIP
         takes uname and gname and removes that group
-        remember admin priv
         """
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
@@ -190,5 +187,19 @@ class GroupManagement:
             listofgroups.append(row[0])              
         cur.close()
         connection.close()   
-        return listofgroups     
+        return listofgroups
+    
+    def GroupIdToName( self, gId ):
+        """
+        Takes a Group_id and returns group name
+        """
+
+        connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
+        cur = connection.cursor()
+        query ="select group_name FROM groups WHERE group_id = :gId"
+        cur.execute(query, {'gId':gId})
+        result = cur.fetchone()
+        cur.close()
+        connection.close() 
+        return result[0]    
         
