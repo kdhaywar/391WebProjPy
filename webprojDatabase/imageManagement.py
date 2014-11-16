@@ -134,22 +134,21 @@ class ImageManagement:
         listofimages = list()
         
         
+        period =""
 
-
+        periodregex = re.compile('\d{2}[/]\d{2}[/]\d{4}-\d{2}[/]\d{2}[/]\d{4}')
+        periodlist=periodregex.findall(searchquery)
         
+        # iterates the matching list and prints all the matches
+        # TODO add sql injection protection
+        for match in periodlist:
+            dateregex = re.compile('\d{2}[/]\d{2}[/]\d{4}')
+            periodlist=dateregex.findall(searchquery)
+            period = period + " AND (timing BETWEEN to_date('"+ periodlist[0] + "','MM-DD-YYYY') AND to_date('"+ periodlist[1] + "','MM-DD-YYYY'))"
+            print "asdfkjasdflkjhsadlfkjhasldkfhalksjdf"
+            
 
-        dates = []
-        patn = re.compile(r'\d{2} \d{2} \d{4}')
-
-
-        for match in patn.findall(searchquery):
-            print match
-            try:
-                val = datetime.strptime(match, '%d %b %Y')
-                dates.append(val)
-            except ValueError:
-                pass # ignore, this isn't a date
-        print dates        
+    
                 
         
         #cleans user input to just alphanumeric
@@ -189,11 +188,12 @@ class ImageManagement:
         else:
             print "Not recognized orderby parameter"
             return False
-
-        query ="""SELECT * FROM images WHERE (contains(place, :progrelaxml , 1) + contains(subject,  :progrelaxml , 2) + contains(description, :progrelaxml, 3) > 0)
-            AND (owner_name = :uname OR permitted IN (%s) OR :uname = 'admin') order by :ranktype""" %(stringofgroups)
         
-        cur.execute(query, {'progrelaxml':progrelaxml , 'uname':uname , 'ranktype':ranktype}) 
+        period = "AND 1 "
+        query ="""SELECT * FROM images WHERE (contains(place, :progrelaxml , 1) + contains(subject,  :progrelaxml , 2) + contains(description, :progrelaxml, 3) > 0)
+            AND (owner_name = :uname OR permitted IN (%s) OR :uname = 'admin') :period order by :ranktype""" %(stringofgroups)
+
+        cur.execute(query, {'progrelaxml':progrelaxml , 'uname':uname , 'period':period , 'ranktype':ranktype }) 
         for row in cur:
             newImage = ProjImage()
             newImage.imageId = row[0]
@@ -205,7 +205,8 @@ class ImageManagement:
             newImage.imageDesc = row[6]
             newImage.thumbnail = row[7]
             newImage.imageFile = row[8].read()
-            listofimages.append(newImage) 
+            listofimages.append(newImage)         
+
            
         cur.close()
         connection.close()   

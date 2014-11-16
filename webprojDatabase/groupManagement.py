@@ -207,7 +207,7 @@ class GroupManagement:
     
     def ModifyGroupMemberNotice( self, uname, fname, gname, notice):
         """
-        takes owner_name,  friend_id , group_id and the new notice and modifies the group
+        takes owner_name,  friend_id , group_name and the new notice and modifies the group
         returns false if users not owner of the group and not admin
         """
         
@@ -221,8 +221,7 @@ class GroupManagement:
         
 
         insert ="UPDATE group_lists SET notice = :notice WHERE friend_id = :fname AND group_id = :gid"
-        kwargs.update({'gid':gid , 'uname':uname})
-        cur.execute(insert, kwargs ) 
+        cur.execute(insert, {'notice':notice, 'fname':fname, 'gid':gid} ) 
         connection.commit() 
         cur.close()
         connection.close()   
