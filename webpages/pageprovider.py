@@ -9,6 +9,7 @@ from webprojDatabase.accountmanagement import AccountManagement
 from webprojDatabase.imageManagement import ImageManagement
 from webprojDatabase.groupManagement import GroupManagement
 from util.ProjImage import ProjImage
+import io
 from PIL import Image
 from io import BytesIO
 
@@ -149,8 +150,8 @@ class PageProvider(object):
         kwargs["picSecurity"] will be a string describing security setting, either Public, Group, or Private.
         kwargs["picGroup"] will be a string describing the group name if the Group security setting is chosen.
         """
-        
-        ##cherrypy.engine.exit()
+        #thumbnail size
+        size = 128, 128
         for k, v in kwargs.items():
             print k, v, type(v)
         images = list()
@@ -163,9 +164,13 @@ class PageProvider(object):
         for item in fileobjects:
             newImage = ProjImage()
             newImage.imageFile = item.file.read()
-            originalImage = Image.open(BytesIO(item.file.read()))
-            originalImage.thumbnail((128, 128), Image.ANTIALIAS)
-            newImage.thumbnail = originalImage.tobytes()
+            try:
+                im = Image.open(io.BytesIO(newImage.imageFile))
+                im.thumbnail(size, Image.ANTIALIAS)
+                im.save("a_test.png")
+            except IOError:
+                print "cannot create thumbnail for", newImage.imageFile           
+            newImage.thumbnail = buffer(im.tostring())
             newImage.imageLocation = kwargs["location"]
             newImage.imageDate = kwargs["picDate"]
             newImage.imageSubject = kwargs["picSubject"]
@@ -198,8 +203,7 @@ class PageProvider(object):
         :return: HTML for the webpage.
         """
         x = ImageManagement()
-        failedimagelist = x.SearchImages( 'q', 'sdfgsdfg sdfgsdfg', 'rank')
-        print failedimagelist
+        failedimagelist = x.SearchImages( 'q', 'sdfgsdfg sdfgsdfg06/12/1000-12/11/1001 sdfg 06/12/1002-12/11/1003', 'rank')
         
         if "user" not in cherrypy.session.keys():
             raise cherrypy.HTTPRedirect("/home")

@@ -76,7 +76,7 @@ class GroupManagement:
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
         gid = GroupManagement().GroupNameToId(uname , gname)
-        if not gid and uname is not 'admin':
+        if not gid and uname != 'admin':
             print "%s does not have access to delete group %s" %(uname, gname)
             return False
         #deletes all memebers of the group first  
@@ -101,7 +101,7 @@ class GroupManagement:
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
         gid = GroupManagement().GroupNameToId(uname , gname)
-        if not gid and uname is not 'admin':
+        if not gid and uname != 'admin':
             print "%s does not have access to remove members from %s" %(uname, gname)
             return False
         
@@ -215,7 +215,7 @@ class GroupManagement:
         cur = connection.cursor()
         
         gid = GroupManagement().GroupNameToId(uname , gname)
-        if not gid and uname is not 'admin':
+        if not gid and uname != 'admin':
             print "%s does not have access to remove members from %s" %(uname, gname)
             return False        
         
