@@ -225,6 +225,18 @@ class GroupManagement:
         connection.commit() 
         cur.close()
         connection.close()   
-        return True  
+        return True
+
+
+    def GetGroupMemberNotice(self, ownername, groupname, username):
+        connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
+        cur = connection.cursor()
+        gid = GroupManagement().GroupNameToId(ownername, groupname)
+        query = "SELECT notice from group_lists where group_id = :gid and friend_id = :username"
+        cur.execute(query, {'gid':gid, 'username':username})
+        result = cur.fetchone()
+        cur.close()
+        connection.close()
+        return result[0]
     
         

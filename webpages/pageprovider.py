@@ -163,9 +163,9 @@ class PageProvider(object):
         for item in fileobjects:
             newImage = ProjImage()
             newImage.imageFile = item.file.read()
-            originalImage = Image.open(BytesIO(item.file.read()))
-            originalImage.thumbnail((128, 128), Image.ANTIALIAS)
-            newImage.thumbnail = originalImage.tobytes()
+            #originalImage = Image.open(BytesIO(item.file.read()))
+            #originalImage.thumbnail((128, 128), Image.ANTIALIAS)
+            #newImage.thumbnail = originalImage.tobytes()
             newImage.imageLocation = kwargs["location"]
             newImage.imageDate = kwargs["picDate"]
             newImage.imageSubject = kwargs["picSubject"]
@@ -354,12 +354,23 @@ class PageProvider(object):
             result = gm.RemoveGroupMember(cherrypy.session.get("user"), groupName, r)
             if not result:
                 results.append("Error: Could not remove user %s." %(r))
+            else:
+                results.append("Removed user %s." %(r))
         for a in addedUsers:
             miscList = list()
             miscList.append(a)
             result = gm.AddGroupMembers(groupId, miscList)
             if not result:
                 results.append("Error: Could not add user %s." %(a))
+            else:
+                results.append("Added user %s." %(a))
+        if modifiedNotices != None or modifiedNotices != "Username - New Notice":
+            noticeUser, newNotice = modifiedNotices.split(" - ")
+            result = gm.ModifyGroupMemberNotice(cherrypy.session.get("user"), noticeUser, groupName, newNotice)
+            if not result:
+                results.append("Could not modify %s's notice." %(noticeUser))
+            else:
+                results.append("Notice sucessfully changed.")
         return str(results)
 
     @cherrypy.expose
