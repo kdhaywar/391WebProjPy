@@ -166,11 +166,11 @@ class ImageManagement:
         
 
         ranktype = None
-        if orderby is 'rank':
+        if orderby == 'rank':
             ranktype = "(score(1)*3)+(score(2)*6)+(score(3)) desc"    
-        elif orderby is 'recentfirst':
+        elif orderby == 'recentfirst':
             ranktype = "timing desc"
-        elif orderby is 'recentlast':
+        elif orderby == 'recentlast':
             ranktype = "timing asc"
         else:
             print "Not recognized orderby parameter"
