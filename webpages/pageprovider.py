@@ -9,6 +9,8 @@ from webprojDatabase.accountmanagement import AccountManagement
 from webprojDatabase.imageManagement import ImageManagement
 from webprojDatabase.groupManagement import GroupManagement
 from util.ProjImage import ProjImage
+from PIL import Image
+from io import BytesIO
 
 
 class PageProvider(object):
@@ -161,6 +163,9 @@ class PageProvider(object):
         for item in fileobjects:
             newImage = ProjImage()
             newImage.imageFile = item.file.read()
+            originalImage = Image.open(BytesIO(item.file.read()))
+            originalImage.thumbnail((128, 128), Image.ANTIALIAS)
+            newImage.thumbnail = originalImage.tobytes()
             newImage.imageLocation = kwargs["location"]
             newImage.imageDate = kwargs["picDate"]
             newImage.imageSubject = kwargs["picSubject"]
