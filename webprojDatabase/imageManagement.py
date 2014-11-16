@@ -139,10 +139,11 @@ class ImageManagement:
         
 
         dates = []
-        patn = re.compile(r'\d{2} \w{3} \d{4}')
+        patn = re.compile(r'\d{2} \d{2} \d{4}')
 
 
         for match in patn.findall(searchquery):
+            print match
             try:
                 val = datetime.strptime(match, '%d %b %Y')
                 dates.append(val)

@@ -201,5 +201,31 @@ class GroupManagement:
         result = cur.fetchone()
         cur.close()
         connection.close() 
-        return result[0]    
+        return result[0]  
+    
+    
+    
+    def ModifyGroupMemberNotice( self, uname, fname, gname, notice):
+        """
+        takes owner_name,  friend_id , group_id and the new notice and modifies the group
+        returns false if users not owner of the group and not admin
+        """
+        
+        connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
+        cur = connection.cursor()
+        
+        gid = GroupManagement().GroupNameToId(uname , gname)
+        if not gid and uname is not 'admin':
+            print "%s does not have access to remove members from %s" %(uname, gname)
+            return False        
+        
+
+        insert ="UPDATE group_lists SET notice = :notice WHERE friend_id = :fname AND group_id = :gid"
+        kwargs.update({'gid':gid , 'uname':uname})
+        cur.execute(insert, kwargs ) 
+        connection.commit() 
+        cur.close()
+        connection.close()   
+        return True  
+    
         
