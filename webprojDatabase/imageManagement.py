@@ -3,6 +3,7 @@ __author__ = 'KyleHayward'
 
 import cx_Oracle
 import imghdr
+import re
 from groupManagement import GroupManagement
 from util.ProjImage import ProjImage
 
@@ -30,7 +31,8 @@ class ImageManagement:
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
         
-        for image in images: 
+        for image in images:
+
             ## hacked together... prob should fix that
             photo = image.imageFile
             cur.setinputsizes(photo=cx_Oracle.BLOB)            
@@ -117,16 +119,24 @@ class ImageManagement:
         
         
         
-    def SearchImages( self , uname, searchquery):
+    def SearchImages( self , uname, searchquery, orderby):
         """
-        takes a string and username and performs a search based on the string  
+        takes a username, string for search query, and the type of ranking ( "rank" or "recentfirst" or "recentlast" and performs a search based on the string  
         returns list of projimage objects
         TODO add ability to only get certian image fields
-        TODO add admin privledges
+        TODO date search
+        
         """
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
         listofimages = list()
+        
+        #cleans user input to just alphanumeric
+        rx = re.compile('\W+')
+        cleansearchquery = rx.sub(' ', searchquery).strip()
+     
+        
+        
         
         #gets a list of group_ids the uname is a member of and converts it into a string for query condition statement
         x = GroupManagement()
@@ -136,7 +146,7 @@ class ImageManagement:
         #TODO PARSE INPUT REMOVING COMMAS AND SUCH must not have query operators
         #tokenizes searchquery and transforms it to various oracle recognized expressions for a better search 
         progrelaxml = """'<query>
-            <textquery lang="ENGLISH" grammar="CONTEXT"> """+ searchquery +"""
+            <textquery lang="ENGLISH" grammar="CONTEXT"> """+ cleansearchquery +"""
             <progression>
             <seq><rewrite>transform((TOKENS, "{", "}", " "))</rewrite></seq>
             <seq><rewrite>transform((TOKENS, "{", "}", " ; "))</rewrite></seq>
@@ -146,11 +156,23 @@ class ImageManagement:
             </textquery>
             <score datatype="INTEGER" algorithm="COUNT"/>
             </query>'"""
+        
+        
+        ranktype = None
+        if orderby is 'rank':
+            ranktype = "(score(1)*3)+(score(2)*6)+(score(3)) desc"    
+        elif orderby is 'recentfirst':
+            ranktype = "timing desc"
+        elif orderby is 'recentlast':
+            ranktype = "timing asc"
+        else:
+            print "Not recognized orderby parameter"
+            return False
 
         query ="""SELECT * FROM images WHERE (contains(place, :progrelaxml , 1) + contains(subject,  :progrelaxml , 2) + contains(description, :progrelaxml, 3) > 0)
-            AND (owner_name = :uname OR permitted IN (%s) OR :uname = 'admin') order by (score(1)*3)+(score(2)*6)+(score(3)) desc""" %(stringofgroups)
+            AND (owner_name = :uname OR permitted IN (%s) OR :uname = 'admin') order by :ranktype""" %(stringofgroups)
         
-        cur.execute(query, {'progrelaxml':progrelaxml , 'uname':uname}) 
+        cur.execute(query, {'progrelaxml':progrelaxml , 'uname':uname , 'ranktype':ranktype}) 
         for row in cur:
             newImage = ProjImage()
             newImage.imageId = row[0]

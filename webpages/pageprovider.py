@@ -87,6 +87,9 @@ class PageProvider(object):
     @cherrypy.expose
     def home(self):
         #return "This is the homepage for the logged in user, WIP."
+         
+        
+        
         if "user" not in cherrypy.session.keys():
             raise cherrypy.HTTPRedirect("/")
         baseHtml = """<!DOCTYPE html>
@@ -170,6 +173,7 @@ class PageProvider(object):
 
         for k in images:
             print k
+      
 
 
         # sends a list of ProjImage to Import Image
@@ -188,6 +192,10 @@ class PageProvider(object):
         The webpage that allows a user to enter an image search query.
         :return: HTML for the webpage.
         """
+        x = GroupManagement()
+        failedimagelist = x.GroupIdToName( '43')
+        print failedimagelist
+        
         if "user" not in cherrypy.session.keys():
             raise cherrypy.HTTPRedirect("/home")
         return "Search webpage, WIP"
