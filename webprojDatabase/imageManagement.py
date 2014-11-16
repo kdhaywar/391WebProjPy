@@ -65,7 +65,8 @@ class ImageManagement:
                     else:
                         errormessage.append("Unknown database error when inserting image")
                         print("Database Error Occured on image '%s'") %(error.code)
-                        print("Database Error Occured on image '%s'") %(error.message)                    
+                        print("Database Error Occured on image '%s'") %(error.message)
+                        print(e)
             if errormessage:
                 failedimages.append([image , errormessage] )
 
