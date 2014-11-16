@@ -72,7 +72,7 @@ class ImageManagement:
                         print("Database Error Occured on image '%s'") %(error.message)
                         print(e)
             if errormessage:
-                failedimages.append([image , errormessage] )
+                failedimages.append([image , errormessage])
 
         
         connection.commit()             
