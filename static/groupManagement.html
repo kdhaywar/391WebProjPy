@@ -10,6 +10,9 @@
         I CAN'T BELIEVE IT'S NOT IMGUR!
     </h1>
     <form method="post" action="manageGroup">
+       <div>
+           <input type="hidden" name="groupId" id="groupId" value="%s"/>
+       </div>
         <div>
             <label for="removedUsers">Users to Remove:</label>
             <input type="text" name="removedUsers" id="removedUsers" value="User1, User2, etc."/>
@@ -29,6 +32,5 @@
             <button type="submit">Submit</button>
         </div>
     </form>
-
 </body>
 </html>
