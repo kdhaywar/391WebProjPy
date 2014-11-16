@@ -132,38 +132,25 @@ class ImageManagement:
         connection = cx_Oracle.connect('kdhaywar/kdhaywar2014@crs.cs.ualberta.ca')
         cur = connection.cursor()
         listofimages = list()
-        
-        
-        period =""
-
+        #grabs date periods
         periodregex = re.compile('\d{2}[/]\d{2}[/]\d{4}-\d{2}[/]\d{2}[/]\d{4}')
         periodlist=periodregex.findall(searchquery)
-        
-        # iterates the matching list and prints all the matches
-        # TODO add sql injection protection
+        period =""
+        #makes between statement to be injected into query
         for match in periodlist:
+            #removes the date from the string to be searched
+            searchquery = re.sub(match, '', searchquery)
             dateregex = re.compile('\d{2}[/]\d{2}[/]\d{4}')
-            periodlist=dateregex.findall(searchquery)
+            periodlist=dateregex.findall(match)
             period = period + " AND (timing BETWEEN to_date('"+ periodlist[0] + "','MM-DD-YYYY') AND to_date('"+ periodlist[1] + "','MM-DD-YYYY'))"
-            print "asdfkjasdflkjhsadlfkjhasldkfhalksjdf"
-            
-
-    
-                
-        
+  
         #cleans user input to just alphanumeric
         rx = re.compile('\W+')
         cleansearchquery = rx.sub(' ', searchquery).strip()
-     
-        
-        
-        
         #gets a list of group_ids the uname is a member of and converts it into a string for query condition statement
         x = GroupManagement()
         listofgroups = x.UsersPermissions(uname)
         stringofgroups = ','.join(map(str, listofgroups)) 
-
-        #TODO PARSE INPUT REMOVING COMMAS AND SUCH must not have query operators
         #tokenizes searchquery and transforms it to various oracle recognized expressions for a better search 
         progrelaxml = """'<query>
             <textquery lang="ENGLISH" grammar="CONTEXT"> """+ cleansearchquery +"""
@@ -189,11 +176,11 @@ class ImageManagement:
             print "Not recognized orderby parameter"
             return False
         
-        period = "AND 1 "
+        # TODO add sql injection protection on period
         query ="""SELECT * FROM images WHERE (contains(place, :progrelaxml , 1) + contains(subject,  :progrelaxml , 2) + contains(description, :progrelaxml, 3) > 0)
-            AND (owner_name = :uname OR permitted IN (%s) OR :uname = 'admin') :period order by :ranktype""" %(stringofgroups)
+            AND (owner_name = :uname OR permitted IN (%s) OR :uname = 'admin') %s order by :ranktype""" %(stringofgroups, period)
 
-        cur.execute(query, {'progrelaxml':progrelaxml , 'uname':uname , 'period':period , 'ranktype':ranktype }) 
+        cur.execute(query, {'progrelaxml':progrelaxml , 'uname':uname , 'ranktype':ranktype }) 
         for row in cur:
             newImage = ProjImage()
             newImage.imageId = row[0]
@@ -206,7 +193,6 @@ class ImageManagement:
             newImage.thumbnail = row[7]
             newImage.imageFile = row[8].read()
             listofimages.append(newImage)         
-
            
         cur.close()
         connection.close()   
