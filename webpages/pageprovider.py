@@ -192,8 +192,8 @@ class PageProvider(object):
         The webpage that allows a user to enter an image search query.
         :return: HTML for the webpage.
         """
-        x = GroupManagement()
-        failedimagelist = x.GroupIdToName( '43')
+        x = ImageManagement()
+        failedimagelist = x.SearchImages( 'q', 'sdfgsdfg sdfgsdfg 05/04/12 10/09/05', 'rank')
         print failedimagelist
         
         if "user" not in cherrypy.session.keys():
