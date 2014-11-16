@@ -254,6 +254,7 @@ class PageProvider(object):
         groupData = ""
         gm = GroupManagement()
         usersGroups = gm.UsersGroups(cherrypy.session.get("user"))
+        print "usersGroups ids", usersGroups.keys()
         for key in usersGroups.keys():
             groupName = usersGroups.get(key)
             groupUsers = gm.GroupMembers(key)
@@ -272,6 +273,7 @@ class PageProvider(object):
                     </form>
             """ %(groupName, key, groupName)
         guestGroupIds = gm.UsersPermissions(cherrypy.session.get("user"))
+        print "guestGroupIds ", guestGroupIds
         for id in guestGroupIds:
             if id in usersGroups.keys():
                 guestGroupIds.remove(id)
@@ -303,7 +305,7 @@ class PageProvider(object):
             raise cherrypy.HTTPRedirect("/home")
         print "groupName " + groupName
         print "groupId " + groupId
-        return "Group Management WIP"
+        return open("static/groupManagement.html")
 
     @cherrypy.expose
     def addNewGroup(self, groupName=None, groupUsers=None):
@@ -323,11 +325,11 @@ class PageProvider(object):
 
     @cherrypy.expose
     def manageGroup(self, groupId=None, addedUsers=None, removedUsers=None, modifiedNotices=None, deleteGroup=None):
-        print "groupId" + groupId
-        print "addedUsers" + addedUsers
-        print "removedUsers" + removedUsers
-        print "modifiedNotices" + modifiedNotices
-        print "deleteGroup" + deleteGroup
+        print "groupId", groupId
+        print "addedUsers", addedUsers
+        print "removedUsers", removedUsers
+        print "modifiedNotices", modifiedNotices
+        print "deleteGroup", deleteGroup
         return "Group Management WIP"
 
     @cherrypy.expose
