@@ -177,6 +177,7 @@ class PageProvider(object):
             newImage.imagePrivacy = kwargs["picSecurity"]
             newImage.imageGroup = kwargs["picGroup"]
             newImage.ownerName = cherrypy.session.get("user")
+            newImage.imageDesc = kwargs.get("picSubject")
             #newImage.ownerName = cherrypy.session["user"] 
             images.append(newImage)
             
@@ -202,12 +203,19 @@ class PageProvider(object):
         The webpage that allows a user to enter an image search query.
         :return: HTML for the webpage.
         """
-        x = ImageManagement()
-        failedimagelist = x.SearchImages( 'q', 'sdfgsdfg sdfgsdfg06/12/1000-12/11/1001 sdfg 06/12/1002-12/11/1003', 'rank')
-        
         if "user" not in cherrypy.session.keys():
             raise cherrypy.HTTPRedirect("/home")
-        return "Search webpage, WIP"
+        return open("static/search.html")
+
+    @cherrypy.expose
+    def searchResults(self, searchQuery=None, rankType=None):
+        if "user" not in cherrypy.session.keys():
+            raise cherrypy.HTTPRedirect("/home")
+        print "searchQuery", searchQuery
+        print "rankType", rankType
+        im = ImageManagement()
+        imageresults = im.SearchImages(cherrypy.session.get("user"), searchQuery, rankType)
+        print imageresults
 
 
     @cherrypy.expose
@@ -216,7 +224,6 @@ class PageProvider(object):
         The webpage that displays group management information to the user.
         :return: HTML for the webpage.
         """
-        #TODO: Database side for  getting Group information and then creating HTML to display it to the user.
         if "user" not in cherrypy.session.keys():
             raise cherrypy.HTTPRedirect("/home")
         groupHeader = """
@@ -358,12 +365,23 @@ class PageProvider(object):
             result = gm.RemoveGroupMember(cherrypy.session.get("user"), groupName, r)
             if not result:
                 results.append("Error: Could not remove user %s." %(r))
+            else:
+                results.append("Removed user %s." %(r))
         for a in addedUsers:
             miscList = list()
             miscList.append(a)
             result = gm.AddGroupMembers(groupId, miscList)
             if not result:
                 results.append("Error: Could not add user %s." %(a))
+            else:
+                results.append("Added user %s." %(a))
+        if modifiedNotices != None or modifiedNotices != "Username - New Notice":
+            noticeUser, newNotice = modifiedNotices.split(" - ")
+            result = gm.ModifyGroupMemberNotice(cherrypy.session.get("user"), noticeUser, groupName, newNotice)
+            if not result:
+                results.append("Could not modify %s's notice." %(noticeUser))
+            else:
+                results.append("Notice sucessfully changed.")
         return str(results)
 
     @cherrypy.expose
